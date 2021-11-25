@@ -235,10 +235,10 @@ void Searching(String^ Path)
         Path = Append(Path, "\\Engine\\Plugins");
     }
 
-    for each (String^ dirCategory in Directory::EnumerateDirectories(Path) )
-    {
-        FindUPlugin(dirCategory);
-    }
+    //for each (String^ dirCategory in Directory::EnumerateDirectories(Path) )
+    //{
+        FindUPlugin(Path);
+    //}
 
     AppForm::dtbPlugins->DefaultView->Sort = "celEnabledByDefault DESC, celFriendlyName ASC, celCategory ASC";
     AppForm::dtbPlugins->AcceptChanges();
