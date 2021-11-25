@@ -1,0 +1,3 @@
+Font : Roboto-Regular by Christian Robertson - https://fonts.google.com/specimen/Roboto
+Icons: Microsoft FluentUI System Icons - https://github.com/microsoft/fluentui-system-icons
+Icons: DefaultIcon128.png from Unreal Engine by Epic Games.
