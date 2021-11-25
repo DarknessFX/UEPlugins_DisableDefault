@@ -14,20 +14,21 @@
 
 # UEPlugins_DisableDefault
 
-Tool for manage Unreal Engine Plugins (.uplugins) set to Enabled By Default .
+Tool for manage Unreal Engine Plugins (.uplugins) set to Enabled By Default .<br/>
 
 <img src="https://raw.githubusercontent.com/DarknessFX/UEPlugins_DisableDefault/main/.git_img/screenshot.jpg" width="640px" />
 
 ## About
 
-Unreal Engine have around 100 plugins enabled by default. To disable one of those plugins you need to look for the respective .uplugin file and change the property *"EnabledByDefault": true* to *false*, this tool is made to easier manage this setting
+Unreal Engine have around 100 plugins enabled by default. To disable one of those plugins you need to look for the respective .uplugin file and change the property *"EnabledByDefault": true* to *false*, this tool is made to easier manage this setting.<br/><br/>
 
 Project info/blog at <a href="https://dfx.lv/UEPlugins_DisableDefault" target="_blank">https://dfx.lv/UEPlugins_DisableDefault</a> .<br/><br/>
 
 ## Credits
-Icon: DefaultIcon128.png from Unreal Engine by Epic Games.
-Icon: Microsoft FluentUI System Icons - https://github.com/microsoft/fluentui-system-icons
-Font : Roboto-Regular by Christian Robertson - https://fonts.google.com/specimen/Roboto
+
+Icon: DefaultIcon128.png from Unreal Engine by Epic Games. <br/>
+Icon: Microsoft FluentUI System Icons - https://github.com/microsoft/fluentui-system-icons <br/>
+Font : Roboto-Regular by Christian Robertson - https://fonts.google.com/specimen/Roboto <br/>
 
 ## License
 
