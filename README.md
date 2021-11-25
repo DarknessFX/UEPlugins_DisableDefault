@@ -24,6 +24,11 @@ Unreal Engine have around 100 plugins enabled by default. To disable one of thos
 
 Project info/blog at <a href="https://dfx.lv/UEPlugins_DisableDefault" target="_blank">https://dfx.lv/UEPlugins_DisableDefault</a> .<br/><br/>
 
+## Credits
+Icon: DefaultIcon128.png from Unreal Engine by Epic Games.
+Icon: Microsoft FluentUI System Icons - https://github.com/microsoft/fluentui-system-icons
+Font : Roboto-Regular by Christian Robertson - https://fonts.google.com/specimen/Roboto
+
 ## License
 
 @MIT - Free for everyone and any use. <br/><br/>
