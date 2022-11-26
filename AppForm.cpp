@@ -348,7 +348,13 @@ void GetJSONValue(String^& str0)
     else 
     {
         str0 = str0->Substring(str0->IndexOf(": ") + 2);
-        str0 = str0->Substring(0, str0->Length - 1);
+        if (str0->Substring(str0->Length - 1, 1) == ",") {
+          str0 = str0->Substring(0, str0->Length - 1);
+        }
+        else
+        {
+          str0 = str0->Substring(0, str0->Length);
+        }
     }
 }
 
