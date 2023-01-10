@@ -155,12 +155,25 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
                     FileStream^ newStream = gcnew FileStream(filePlugin, FileMode::CreateNew);
                     StreamWriter^ newWriter = gcnew StreamWriter(newStream);
 
+                    bool bMissingLine = !origReader->ReadToEnd()->Contains("EnabledByDefault");
+                    origReader->DiscardBufferedData();
+                    origReader->BaseStream->Seek(0, SeekOrigin::Begin);
                     while ( !origReader->EndOfStream )
                     {
                         String^ line = origReader->ReadLine();
                         if ( line->Contains("EnabledByDefault") ) 
                         {
                             line = line->Replace(mDROrig["celEnabledByDefault"]->ToString()->ToLower(), mDRPlug["celEnabledByDefault"]->ToString()->ToLower());
+                        }
+                        if ( bMissingLine && line->Contains("Modules") )
+                        {
+                          String^ InsertLine; 
+                          InsertLine = "\"EnabledByDefault\": ";
+                          InsertLine = InsertLine->Insert(InsertLine->Length, mDRPlug["celEnabledByDefault"]->ToString()->ToLower());
+                          InsertLine = InsertLine->Insert(InsertLine->Length, ",\n");
+                          InsertLine = InsertLine->Insert(InsertLine->Length, line);
+                          line = InsertLine;
+                          bMissingLine = false;
                         }
                         newWriter->WriteLine(line);
                     }
