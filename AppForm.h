@@ -48,6 +48,7 @@ AppForm(void)
 public: static  System::Windows::Forms::ToolStripStatusLabel^ lblStatus;
 public: static  System::Windows::Forms::ComboBox^ cmbUEFolder;
 public: static  System::Windows::Forms::Button^ btnBrowse;
+public: static  System::Windows::Forms::TextBox^ txtSearch;
 public: static  System::Windows::Forms::ToolStripSplitButton^ btnMenu;
 public: static  System::Data::DataTable^ dtbPlugins;
 public: static  System::Data::DataTable^ dtbPluginsOrig;
@@ -78,6 +79,7 @@ System::Windows::Forms::FolderBrowserDialog^ dlgBrowse;
 System::Data::DataSet^ datPlugins;
 System::Data::DataColumn^ celName;
 System::Data::DataColumn^ celEnabledDef;
+System::Data::DataColumn^ celInstalled;
 System::Data::DataColumn^ celFriendlyName;
 System::Data::DataColumn^ celDescription;
 System::Data::DataColumn^ celCategory;
@@ -86,6 +88,7 @@ System::Data::DataColumn^ celPath;
 System::Data::DataColumn^ celIcon;
 
 System::Windows::Forms::DataGridViewCheckBoxColumn^ celEnabledByDefaultDataGridViewCheckBoxColumn;
+System::Windows::Forms::DataGridViewCheckBoxColumn^ celInstalledDataGridViewCheckBoxColumn;
 System::Windows::Forms::DataGridViewTextBoxColumn^ celCategoryDataGridViewTextBoxColumn;
 System::Windows::Forms::DataGridViewImageColumn^ celIconDataGridViewImageColumn;
 System::Windows::Forms::DataGridViewTextBoxColumn^ celNameDataGridViewTextBoxColumn;
@@ -120,10 +123,12 @@ void InitializeComponent(void)
     this->cmbUEFolder = ( gcnew System::Windows::Forms::ComboBox () );
     this->btnBrowse = ( gcnew System::Windows::Forms::Button () );
     this->dlgBrowse = ( gcnew System::Windows::Forms::FolderBrowserDialog () );
+    this->txtSearch = (gcnew System::Windows::Forms::TextBox());
     this->datPlugins = ( gcnew System::Data::DataSet () );
     this->dtbPlugins = ( gcnew System::Data::DataTable () );
     this->celName = ( gcnew System::Data::DataColumn () );
     this->celEnabledDef = ( gcnew System::Data::DataColumn () );
+    this->celInstalled = (gcnew System::Data::DataColumn());
     this->celFriendlyName = ( gcnew System::Data::DataColumn () );
     this->celDescription = ( gcnew System::Data::DataColumn () );
     this->celCategory = ( gcnew System::Data::DataColumn () );
@@ -133,6 +138,7 @@ void InitializeComponent(void)
     this->dtbPluginsOrig = ( gcnew System::Data::DataTable () );
     this->grdPlugins = ( gcnew System::Windows::Forms::DataGridView () );
     this->celEnabledByDefaultDataGridViewCheckBoxColumn = ( gcnew System::Windows::Forms::DataGridViewCheckBoxColumn () );
+    this->celInstalledDataGridViewCheckBoxColumn = (gcnew System::Windows::Forms::DataGridViewCheckBoxColumn());
     this->celCategoryDataGridViewTextBoxColumn = ( gcnew System::Windows::Forms::DataGridViewTextBoxColumn () );
     this->celIconDataGridViewImageColumn = ( gcnew System::Windows::Forms::DataGridViewImageColumn () );
     this->celNameDataGridViewTextBoxColumn = ( gcnew System::Windows::Forms::DataGridViewTextBoxColumn () );
@@ -247,6 +253,7 @@ void InitializeComponent(void)
     this->flwUEFolder->Controls->Add ( this->lblUEFolder );
     this->flwUEFolder->Controls->Add ( this->cmbUEFolder );
     this->flwUEFolder->Controls->Add ( this->btnBrowse );
+    this->flwUEFolder->Controls->Add ( this->txtSearch );
     this->flwUEFolder->Dock = System::Windows::Forms::DockStyle::Top;
     this->flwUEFolder->Location = System::Drawing::Point ( 0, 0 );
     this->flwUEFolder->Name = L"flwUEFolder";
@@ -304,6 +311,21 @@ void InitializeComponent(void)
     this->dlgBrowse->RootFolder = System::Environment::SpecialFolder::MyComputer;
     this->dlgBrowse->ShowNewFolderButton = false;
     // 
+    // txtSearch
+    // 
+    this->txtSearch->AutoSize = false;
+    this->txtSearch->Dock = System::Windows::Forms::DockStyle::Top;
+    this->txtSearch->Font = (gcnew System::Drawing::Font(L"Roboto", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+      static_cast<System::Byte>(0)));
+    this->txtSearch->Location = System::Drawing::Point(434, 3);
+    this->txtSearch->Margin = System::Windows::Forms::Padding(3, 5, 3, 0);
+    this->txtSearch->Name = L"txtSearch";
+    this->txtSearch->Size = System::Drawing::Size(120, 20);
+    this->txtSearch->TabIndex = 3;
+    this->txtSearch->Text = L"Search";
+    this->txtSearch->GotFocus += gcnew System::EventHandler(this, &AppForm::txtSearch_GotFocus);
+    this->txtSearch->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &AppForm::txtSearch_KeyUp);
+    // 
     // datPlugins
     // 
     this->datPlugins->DataSetName = L"datPlugins";
@@ -312,9 +334,9 @@ void InitializeComponent(void)
     // dtbPlugins
     // 
     this->dtbPlugins->CaseSensitive = true;
-    this->dtbPlugins->Columns->AddRange ( gcnew cli::array< System::Data::DataColumn^  > ( 8 )
+    this->dtbPlugins->Columns->AddRange ( gcnew cli::array< System::Data::DataColumn^  > ( 9 )
     {
-        this->celName, this->celEnabledDef,
+        this->celName, this->celEnabledDef, this->celInstalled,
             this->celFriendlyName, this->celDescription, this->celCategory, this->celVersionName, this->celPath, this->celIcon
     } );
     cli::array< System::String^ >^ __mcTemp__1 = gcnew cli::array< System::String^  > ( 1 ) { L"celName" };
@@ -325,6 +347,7 @@ void InitializeComponent(void)
     } );
     this->dtbPlugins->PrimaryKey = gcnew cli::array< System::Data::DataColumn^  > ( 1 ) { this->celName };
     this->dtbPlugins->TableName = L"dtbPlugins";
+    this->dtbPlugins->CaseSensitive = false;
     // 
     // celName
     // 
@@ -340,6 +363,13 @@ void InitializeComponent(void)
     this->celEnabledDef->ColumnName = L"celEnabledByDefault";
     this->celEnabledDef->DataType = System::Boolean::typeid;
     this->celEnabledDef->DefaultValue = false;
+    // 
+    // celEnabledDef
+    // 
+    this->celInstalled->AllowDBNull = false;
+    this->celInstalled->ColumnName = L"celInstalled";
+    this->celInstalled->DataType = System::Boolean::typeid;
+    this->celInstalled->DefaultValue = false;
     // 
     // celFriendlyName
     // 
@@ -390,9 +420,9 @@ void InitializeComponent(void)
     dataGridViewCellStyle1->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
     this->grdPlugins->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
     this->grdPlugins->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-    this->grdPlugins->Columns->AddRange ( gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  > ( 8 )
+    this->grdPlugins->Columns->AddRange ( gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  > ( 9 )
     {
-        this->celEnabledByDefaultDataGridViewCheckBoxColumn,
+        this->celEnabledByDefaultDataGridViewCheckBoxColumn, this->celInstalledDataGridViewCheckBoxColumn,
             this->celCategoryDataGridViewTextBoxColumn, this->celIconDataGridViewImageColumn, this->celNameDataGridViewTextBoxColumn, this->celFriendlyNameDataGridViewTextBoxColumn,
             this->celDescriptionDataGridViewTextBoxColumn, this->celPathDataGridViewTextBoxColumn, this->celVersionNameDataGridViewTextBoxColumn
     } );
@@ -405,7 +435,7 @@ void InitializeComponent(void)
     this->grdPlugins->RowHeadersVisible = false;
     this->grdPlugins->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::CellSelect;
     this->grdPlugins->Size = System::Drawing::Size ( 943, 375 );
-    this->grdPlugins->TabIndex = 3;
+    this->grdPlugins->TabIndex = 4;
     this->grdPlugins->VirtualMode = true;
     this->grdPlugins->CurrentCellDirtyStateChanged += gcnew System::EventHandler ( this, &AppForm::grdPlugins_CurrentCellDirtyStateChanged );
     // 
@@ -416,6 +446,15 @@ void InitializeComponent(void)
     this->celEnabledByDefaultDataGridViewCheckBoxColumn->HeaderText = L"ByDefault";
     this->celEnabledByDefaultDataGridViewCheckBoxColumn->Name = L"celEnabledByDefaultDataGridViewCheckBoxColumn";
     this->celEnabledByDefaultDataGridViewCheckBoxColumn->Width = 60;
+    // 
+    // celEnabledByDefaultDataGridViewCheckBoxColumn
+    // 
+    this->celInstalledDataGridViewCheckBoxColumn->DataPropertyName = L"celInstalled";
+    this->celInstalledDataGridViewCheckBoxColumn->FillWeight = 60;
+    this->celInstalledDataGridViewCheckBoxColumn->HeaderText = L"Installed";
+    this->celInstalledDataGridViewCheckBoxColumn->Name = L"celInstalledDataGridViewCheckBoxColumn";
+    this->celInstalledDataGridViewCheckBoxColumn->ReadOnly = true;
+    this->celInstalledDataGridViewCheckBoxColumn->Width = 60;
     // 
     // celCategoryDataGridViewTextBoxColumn
     // 
@@ -486,7 +525,7 @@ void InitializeComponent(void)
     // 
     this->AutoScaleDimensions = System::Drawing::SizeF ( 6, 13 );
     this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-    this->ClientSize = System::Drawing::Size ( 943, 427 );
+    this->ClientSize = System::Drawing::Size ( 963, 427 );
     this->Controls->Add ( this->grdPlugins );
     this->Controls->Add ( this->flwUEFolder );
     this->Controls->Add ( this->stsStrip );
@@ -522,6 +561,8 @@ void btnSave_Click ( System::Object^ sender, System::EventArgs^ e );
 void mnuShowAll_Click ( System::Object^ sender, System::EventArgs^ e );
 void mnuShowDefault_Click ( System::Object^ sender, System::EventArgs^ e );
 void grdPlugins_CurrentCellDirtyStateChanged ( System::Object^ sender, System::EventArgs^ e );
+void txtSearch_GotFocus(System::Object^ sender, System::EventArgs^ e);
+void txtSearch_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 
 void UpdateFlow();    
 public: static void StatusUpdate(System::String^ Message);

@@ -47,7 +47,7 @@ void AppForm::AppForm_SizeChanged ( System::Object^ sender, System::EventArgs^ e
 
 void AppForm::UpdateFlow ( )
 {
-    cmbUEFolder->Width = AppForm::ClientSize.Width - btnBrowse->Width - lblUEFolder->Width - 20;
+    cmbUEFolder->Width = AppForm::ClientSize.Width - btnBrowse->Width - lblUEFolder->Width - txtSearch->Width - 28;
 }
 
 void AppForm::StatusUpdate(String^ Message) 
@@ -130,6 +130,8 @@ void AppForm::btnMinimal_Click ( System::Object^ sender, System::EventArgs^ e )
 void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
 {
     StateUpdate(AppState::Wait);
+    AppForm::txtSearch->Text = "";
+    AppForm::dtbPlugins->DefaultView->RowFilter = "";
     AppForm::StatusUpdate("Saving .uplugin changes...");
     ControlsStateChange(ControlsState::Wait);
 
@@ -322,6 +324,12 @@ void ReadUPlugin(String^ FileUPlugin, DataRow^& mDataRow)
             mDataRow["celVersionName"] = line;
             continue;            
         }
+        if (line->Contains("Installed"))
+        {
+          GetJSONValue(line);
+          mDataRow["celInstalled"] = line;
+          continue;
+        }
         if ( line->Contains("EnabledByDefault") ) 
         {
             GetJSONValue(line);
@@ -417,4 +425,14 @@ void ControlsStateChange(ControlsState State)
             AppForm::btnSave->BackColor = Color::LightGreen;
            break;
     }
+}
+
+void AppForm::txtSearch_GotFocus(System::Object^ sender, System::EventArgs^ e)
+{
+  txtSearch->SelectAll();
+}
+
+void AppForm::txtSearch_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
+{
+  AppForm::dtbPlugins->DefaultView->RowFilter = String::Format("celFriendlyName LIKE '%{0}%'", txtSearch->Text);
 }
