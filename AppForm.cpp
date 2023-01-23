@@ -27,10 +27,11 @@ void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
     for each (String^ SubKey in UEKey->GetSubKeyNames()) {
         RegistryKey^ BuildKey = UEKey->OpenSubKey(SubKey);
         String^ UEPath = BuildKey->GetValue("InstalledDirectory")->ToString();
-        cmbUEFolder->Items->Add(UEPath); 
-        if ( UEDefaultPath->Contains(UEPath) ) 
-        {
+        if (Directory::Exists(UEPath)) {
+          cmbUEFolder->Items->Add(UEPath); 
+          if ( UEDefaultPath->Contains(UEPath) ) {
             cmbUEFolder->SelectedIndex = cmbUEFolder->Items->Count - 1;
+          }
         }
     }
 
