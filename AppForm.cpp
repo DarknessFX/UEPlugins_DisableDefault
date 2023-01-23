@@ -24,8 +24,7 @@ void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
     StatusUpdate("Reading Unreal Engine folder path in Registry \\\\HKEY_LOCAL_MACHINE\\SOFTWARE\\EpicGames\\Unreal Engine");
     RegistryKey^ UEKey = Registry::LocalMachine->OpenSubKey("SOFTWARE\\EpicGames\\Unreal Engine");
 
-    for each (String^ SubKey in UEKey->GetSubKeyNames())
-    {
+    for each (String^ SubKey in UEKey->GetSubKeyNames()) {
         RegistryKey^ BuildKey = UEKey->OpenSubKey(SubKey);
         String^ UEPath = BuildKey->GetValue("InstalledDirectory")->ToString();
         cmbUEFolder->Items->Add(UEPath); 
@@ -35,8 +34,11 @@ void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
         }
     }
 
-    StatusUpdate("");
+    StatusUpdate("Finding .uplugins_backup with our backup file.");
+    BackupAll();
+
     UpdateFlow();
+    cmbUEFolder->Focus();
     StateUpdate(AppState::Default);
 }    
 
@@ -180,10 +182,10 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
                         newWriter->WriteLine(line);
                     }
 
-                    origStream->Close();
-                    origStream->Close();
                     newWriter->Close();
                     newStream->Close();
+                    origReader->Close();
+                    origStream->Close();
                     File::Delete(Append(filePlugin, "_UEPlugins_DisableDefault"));
 
                     iMod++;
@@ -436,3 +438,153 @@ void AppForm::txtSearch_KeyUp(System::Object^ sender, System::Windows::Forms::Ke
 {
   AppForm::dtbPlugins->DefaultView->RowFilter = String::Format("celFriendlyName LIKE '%{0}%'", txtSearch->Text);
 }
+
+void BackupAll() 
+{
+  String^ bkpPath = Append(Application::StartupPath, "\\UEPlugins_DisableDefault.uplugins_backup");
+  if (!File::Exists(bkpPath)) {
+    StateUpdate(AppState::Wait);
+    AppForm::StatusUpdate("Generating backup before first use...");
+    ControlsStateChange(ControlsState::Wait);
+
+    FileStream^ newStream = gcnew FileStream(bkpPath, FileMode::CreateNew);
+    StreamWriter^ newWriter = gcnew StreamWriter(newStream);
+    
+    for each (String^ UEPath in AppForm::cmbUEFolder->Items) {
+      Collections::Generic::List<String^>^ aPlugins = FindAllUPlugins(Append(UEPath, "\\Engine\\Plugins"));
+      for each (String^ sPlugin in aPlugins) {
+        for each(String^ sLine in File::ReadLines(sPlugin)) {
+          if (sLine->Contains("EnabledByDefault") && sLine->Contains("true")) {
+            newWriter->WriteLine(sPlugin);
+          }
+        }
+      }
+    }
+    newWriter->Close();
+    newStream->Close();
+    ControlsStateChange(ControlsState::Default);
+    AppForm::StatusUpdate(Append("Backup created at ", bkpPath));
+    StateUpdate(AppState::Default);
+  } else {
+    AppForm::StatusUpdate("");
+  }
+}
+
+Generic::List<String^>^ FindAllUPlugins(String^ Path) {
+  Generic::List<String^>^ aPluginsList = gcnew Generic::List<String^>();
+  for each (String ^ dirPlugin in Directory::EnumerateDirectories(Path)) {
+    if (IsIgnoredFolder(dirPlugin)) {
+      continue;
+    }
+    for each (String ^ mFile in Directory::GetFiles(dirPlugin, "*.uplugin")) {
+      aPluginsList->Add(mFile);
+      break;
+    }
+    if (Directory::GetDirectories(dirPlugin)->Length != 0) {
+      Generic::List<String^>^ aPluginsSubList = FindAllUPlugins(dirPlugin);
+      for each (String^ SubList in aPluginsSubList) {
+        aPluginsList->Add(SubList);
+      }
+    }
+  }
+  return aPluginsList;
+}
+
+void AppForm::btnBackup_Click(System::Object^ sender, System::EventArgs^ e)
+{
+}
+
+void AppForm::mnuBackupSave_Click(System::Object^ sender, System::EventArgs^ e)
+{
+  String^ bkpPath = Append(Application::StartupPath, "\\*.uplugins_backup");
+
+  SaveFileDialog^ dlgBkpSave = gcnew SaveFileDialog();
+  dlgBkpSave->AddExtension = true;
+  dlgBkpSave->CheckPathExists = true;
+  dlgBkpSave->FileName = "MyBackup_01";
+  dlgBkpSave->DefaultExt = ".uplugins_backup";
+  dlgBkpSave->Filter = "Default|*.uplugins_backup";
+  dlgBkpSave->Title = "Save uplugins_backup";
+  dlgBkpSave->InitialDirectory = Application::StartupPath;
+  dlgBkpSave->OverwritePrompt = true;
+  if (dlgBkpSave->ShowDialog() == Windows::Forms::DialogResult::OK) {
+    bkpPath = dlgBkpSave->FileName;
+    if (bkpPath->Contains("UEPlugins_DisableDefault.uplugins_backup")) {
+      MessageBox::Show(this, 
+        "Please, don't use UEPlugins_DisableDefault.uplugins_backup name, this is your main backup for all Unreal Engine folders. Try again with a different filename.", 
+        "UEPlugins_DisableDefault", 
+        MessageBoxButtons::OK, 
+        MessageBoxIcon::Information);
+      return;
+    }
+
+    StateUpdate(AppState::Wait);
+    AppForm::StatusUpdate("Saving backup...");
+    ControlsStateChange(ControlsState::Wait);
+
+    if (File::Exists(bkpPath)) File::Delete(bkpPath);
+    FileStream^ newStream = gcnew FileStream(bkpPath, FileMode::CreateNew);
+    StreamWriter^ newWriter = gcnew StreamWriter(newStream);
+    for each (DataRow ^ mDRPlug in dtbPlugins->Rows) {
+      String^ UEPath = Append(AppForm::cmbUEFolder->SelectedItem->ToString(), "\\Engine\\Plugins\\");
+      if (mDRPlug["celEnabledByDefault"]->ToString()->ToLower() == "true") {
+        newWriter->WriteLine(Append(UEPath, mDRPlug["celPath"]->ToString()));
+      }
+    }
+    newWriter->Close();
+    newStream->Close();
+
+    ControlsStateChange(ControlsState::Default);
+    AppForm::StatusUpdate(Append("Backup created at ", bkpPath));
+    StateUpdate(AppState::Default);
+  }
+}
+
+void AppForm::mnuBackupLoad_Click(System::Object^ sender, System::EventArgs^ e)
+{
+  String^ bkpPath = Append(Application::StartupPath, "\\*.uplugins_backup");
+
+  OpenFileDialog^ dlgBkpSave = gcnew OpenFileDialog();
+  dlgBkpSave->AddExtension = true;
+  dlgBkpSave->CheckFileExists = true;
+  dlgBkpSave->CheckPathExists = true;
+  dlgBkpSave->FileName = "MyBackup_01";
+  dlgBkpSave->DefaultExt = ".uplugins_backup";
+  dlgBkpSave->Filter = "Default|*.uplugins_backup";
+  dlgBkpSave->Title = "Load uplugins_backup";
+  dlgBkpSave->InitialDirectory = Application::StartupPath;
+  if (dlgBkpSave->ShowDialog() == Windows::Forms::DialogResult::OK) {
+    bkpPath = dlgBkpSave->FileName;
+
+    StateUpdate(AppState::Wait);
+    AppForm::StatusUpdate("Loading backup...");
+    ControlsStateChange(ControlsState::Wait);
+
+    int Counter = 0;
+    String^ UEPath = Append(AppForm::cmbUEFolder->SelectedItem->ToString(), "\\Engine\\Plugins\\");
+    FileStream^ newStream = gcnew FileStream(bkpPath, FileMode::Open);
+    StreamReader^ newReader = gcnew StreamReader(newStream);
+    for each (DataRow ^ mDRPlug in dtbPlugins->Rows) {
+      mDRPlug["celEnabledByDefault"] = false;
+    }
+    while (!newReader->EndOfStream)
+    {
+      String^ sLine = newReader->ReadLine();
+      if (sLine->Contains(UEPath)) {
+        for each (DataRow ^ mDRPlug in dtbPlugins->Rows) {
+          if (sLine->Contains(mDRPlug["celPath"]->ToString())) {
+            mDRPlug["celEnabledByDefault"] = true;
+            Counter++;
+          }
+        }
+      }
+    }
+    newReader->Close();
+    newStream->Close();
+
+    ControlsStateChange(ControlsState::Default);
+    AppForm::StatusUpdate(Append(Append("Backup loaded. ", Counter.ToString()), " plugins EnabledByDefault."));
+    StateUpdate(AppState::Default);
+  }
+}
+

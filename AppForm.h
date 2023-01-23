@@ -50,6 +50,7 @@ public: static  System::Windows::Forms::ComboBox^ cmbUEFolder;
 public: static  System::Windows::Forms::Button^ btnBrowse;
 public: static  System::Windows::Forms::TextBox^ txtSearch;
 public: static  System::Windows::Forms::ToolStripSplitButton^ btnMenu;
+public: static  System::Windows::Forms::ToolStripSplitButton^ btnBackup;
 public: static  System::Data::DataTable^ dtbPlugins;
 public: static  System::Data::DataTable^ dtbPluginsOrig;
 public: static  System::Windows::Forms::DataGridView^ grdPlugins;
@@ -74,6 +75,8 @@ System::Windows::Forms::Label^ lblUEFolder;
 System::Windows::Forms::StatusStrip^ stsStrip;
 System::Windows::Forms::ToolStripMenuItem^ mnuShowAll;
 System::Windows::Forms::ToolStripMenuItem^ mnuShowDefault;
+System::Windows::Forms::ToolStripMenuItem^ mnuBackupSave;
+System::Windows::Forms::ToolStripMenuItem^ mnuBackupLoad;
 System::Windows::Forms::FolderBrowserDialog^ dlgBrowse;
 
 System::Data::DataSet^ datPlugins;
@@ -113,6 +116,9 @@ void InitializeComponent(void)
     System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle1 = ( gcnew System::Windows::Forms::DataGridViewCellStyle () );
     this->stsStrip = ( gcnew System::Windows::Forms::StatusStrip () );
     this->lblStatus = ( gcnew System::Windows::Forms::ToolStripStatusLabel () );
+    this->btnBackup = (gcnew System::Windows::Forms::ToolStripSplitButton());
+    this->mnuBackupSave = (gcnew System::Windows::Forms::ToolStripMenuItem());
+    this->mnuBackupLoad = (gcnew System::Windows::Forms::ToolStripMenuItem());
     this->btnMenu = ( gcnew System::Windows::Forms::ToolStripSplitButton () );
     this->mnuShowAll = ( gcnew System::Windows::Forms::ToolStripMenuItem () );
     this->mnuShowDefault = ( gcnew System::Windows::Forms::ToolStripMenuItem () );
@@ -156,10 +162,13 @@ void InitializeComponent(void)
     // 
     // stsStrip
     // 
-    this->stsStrip->Items->AddRange ( gcnew cli::array< System::Windows::Forms::ToolStripItem^  > ( 4 )
+    this->stsStrip->Items->AddRange ( gcnew cli::array< System::Windows::Forms::ToolStripItem^  > ( 5 )
     {
-        this->lblStatus, this->btnMenu,
-            this->btnMinimal, this->btnSave
+        this->lblStatus, 
+        this->btnBackup,
+        this->btnMenu,
+        this->btnMinimal, 
+        this->btnSave
     } );
     this->stsStrip->Location = System::Drawing::Point ( 0, 405 );
     this->stsStrip->Name = L"stsStrip";
@@ -180,13 +189,49 @@ void InitializeComponent(void)
     this->lblStatus->Spring = true;
     this->lblStatus->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
     // 
+    // btnBackup
+    // 
+    this->btnBackup->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+    this->btnBackup->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2)
+    {
+      this->mnuBackupSave,
+      this->mnuBackupLoad
+    });
+    this->btnBackup->Font = (gcnew System::Drawing::Font(L"Roboto", 9));
+    this->btnBackup->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnMenu.Image")));
+    this->btnBackup->ImageTransparentColor = System::Drawing::Color::Magenta;
+    this->btnBackup->Margin = System::Windows::Forms::Padding(4, 2, 4, 0);
+    this->btnBackup->Name = L"btnBackup";
+    this->btnBackup->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
+    this->btnBackup->Size = System::Drawing::Size(70, 20);
+    this->btnBackup->Text = L"Backup";
+    this->btnBackup->ToolTipText = L"Save or Load backups.";
+    // 
+    // mnuBackupSave 
+    // 
+    this->mnuBackupSave->Checked = false;
+    this->mnuBackupSave->CheckOnClick = false;
+    this->mnuBackupSave->Name = L"mnuBackupSave";
+    this->mnuBackupSave->Size = System::Drawing::Size(223, 22);
+    this->mnuBackupSave->Text = L"Save backup";
+    this->mnuBackupSave->Click += gcnew System::EventHandler(this, &AppForm::mnuBackupSave_Click);
+    // 
+    // mnuBackupLoad 
+    // 
+    this->mnuBackupLoad->Checked = false;
+    this->mnuBackupLoad->CheckOnClick = false;
+    this->mnuBackupLoad->Name = L"mnuBackupLoad ";
+    this->mnuBackupLoad->Size = System::Drawing::Size(223, 22);
+    this->mnuBackupLoad->Text = L"Load backup";
+    this->mnuBackupLoad->Click += gcnew System::EventHandler(this, &AppForm::mnuBackupLoad_Click);
+    // 
     // btnMenu
     // 
     this->btnMenu->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
     this->btnMenu->DropDownItems->AddRange ( gcnew cli::array< System::Windows::Forms::ToolStripItem^  > ( 2 )
     {
         this->mnuShowAll,
-            this->mnuShowDefault
+        this->mnuShowDefault
     } );
     this->btnMenu->Font = ( gcnew System::Drawing::Font ( L"Roboto", 9 ) );
     this->btnMenu->Image = ( cli::safe_cast< System::Drawing::Image^ >( resources->GetObject ( L"btnMenu.Image" ) ) );
@@ -242,7 +287,7 @@ void InitializeComponent(void)
     this->btnSave->Name = L"btnSave";
     this->btnSave->ShowDropDownArrow = false;
     this->btnSave->Size = System::Drawing::Size ( 52, 20 );
-    this->btnSave->Text = L"Save";
+    this->btnSave->Text = L"Save changes";
     this->btnSave->ToolTipText = L"Write selected changes to plugins.";
     this->btnSave->Click += gcnew System::EventHandler ( this, &AppForm::btnSave_Click );
     // 
@@ -560,6 +605,9 @@ void btnMinimal_Click ( System::Object^ sender, System::EventArgs^ e );
 void btnSave_Click ( System::Object^ sender, System::EventArgs^ e );
 void mnuShowAll_Click ( System::Object^ sender, System::EventArgs^ e );
 void mnuShowDefault_Click ( System::Object^ sender, System::EventArgs^ e );
+void btnBackup_Click(System::Object^ sender, System::EventArgs^ e);
+void mnuBackupSave_Click(System::Object^ sender, System::EventArgs^ e);
+void mnuBackupLoad_Click(System::Object^ sender, System::EventArgs^ e);
 void grdPlugins_CurrentCellDirtyStateChanged ( System::Object^ sender, System::EventArgs^ e );
 void txtSearch_GotFocus(System::Object^ sender, System::EventArgs^ e);
 void txtSearch_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
@@ -599,3 +647,6 @@ enum class ControlsState
     Wait     = false
 };
 void ControlsStateChange(ControlsState State);
+
+void BackupAll();
+Collections::Generic::List<String^>^ FindAllUPlugins(String^ Path);
