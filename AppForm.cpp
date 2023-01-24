@@ -25,14 +25,16 @@ void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
     RegistryKey^ UEKey = Registry::LocalMachine->OpenSubKey("SOFTWARE\\EpicGames\\Unreal Engine");
 
     for each (String^ SubKey in UEKey->GetSubKeyNames()) {
-        RegistryKey^ BuildKey = UEKey->OpenSubKey(SubKey);
+      RegistryKey^ BuildKey = UEKey->OpenSubKey(SubKey);
+      if (BuildKey->GetValue("InstalledDirectory")) {
         String^ UEPath = BuildKey->GetValue("InstalledDirectory")->ToString();
         if (Directory::Exists(UEPath)) {
-          cmbUEFolder->Items->Add(UEPath); 
-          if ( UEDefaultPath->Contains(UEPath) ) {
+          cmbUEFolder->Items->Add(UEPath);
+          if (UEDefaultPath->Contains(UEPath)) {
             cmbUEFolder->SelectedIndex = cmbUEFolder->Items->Count - 1;
           }
         }
+      }
     }
 
     StatusUpdate("Finding .uplugins_backup with our backup file.");
@@ -50,21 +52,27 @@ void AppForm::AppForm_SizeChanged ( System::Object^ sender, System::EventArgs^ e
 
 void AppForm::UpdateFlow ( )
 {
-    cmbUEFolder->Width = AppForm::ClientSize.Width - btnBrowse->Width - lblUEFolder->Width - txtSearch->Width - 28;
+    cmbUEFolder->Width = ClientSize.Width - 
+      mnuStrip->Width - 
+      splitter1->Width - 
+      btnBrowse->Width - 
+      lblUEFolder->Width - 
+      txtSearch->Width - 
+      28;
 }
 
-void AppForm::StatusUpdate(String^ Message) 
+void StatusUpdate(String^ Message) 
 {
     AppForm::lblStatus->Text = Message;
 }
 
 void AppForm::mnuShowAll_Click ( System::Object^ sender, System::EventArgs^ e )
 {
-    if (mnuShowDefault->Checked) 
+    if (mnuShowEnabled->Checked)
     {
-        mnuShowDefault->Checked = false;
+        mnuShowEnabled->Checked = false;
     }
-    btnMenu->Text = mnuShowAll->Text;
+    mnuShowAll->Checked = true;
 
     for ( int iRow = 0; iRow < AppForm::grdPlugins->Rows->Count; iRow++ )
     {
@@ -72,13 +80,13 @@ void AppForm::mnuShowAll_Click ( System::Object^ sender, System::EventArgs^ e )
     }
 }
 
-void AppForm::mnuShowDefault_Click ( System::Object^ sender, System::EventArgs^ e )
+void AppForm::mnuShowEnabled_Click ( System::Object^ sender, System::EventArgs^ e )
 {
     if (mnuShowAll->Checked) 
     {
         mnuShowAll->Checked = false;
     }
-    btnMenu->Text = mnuShowDefault->Text;
+    mnuShowEnabled->Checked = true;
 
     for ( int iRow = 0; iRow < AppForm::grdPlugins->Rows->Count; iRow++ )
     {
@@ -112,7 +120,7 @@ void AppForm::btnBrowse_Click ( System::Object^ sender, System::EventArgs^ e )
     }
 }
 
-void AppForm::btnMinimal_Click ( System::Object^ sender, System::EventArgs^ e ) 
+void AppForm::mnuTemplateMinimal_Click ( System::Object^ sender, System::EventArgs^ e ) 
 {
     array<String^>^ aMinimal = {"AISupport", "ContentBrowserAssetDataSource", "ContentBrowserClassDataSource", "CurveEditorTools", "TextureFormateOodle", "OodleData", "PluginBrowser", "PluginUtils", "PropertyAccessEditor"};
     for ( int iRow = 0; iRow < AppForm::dtbPlugins->Rows->Count; iRow++ )
@@ -135,7 +143,7 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
     StateUpdate(AppState::Wait);
     AppForm::txtSearch->Text = "";
     AppForm::dtbPlugins->DefaultView->RowFilter = "";
-    AppForm::StatusUpdate("Saving .uplugin changes...");
+    StatusUpdate("Saving .uplugin changes...");
     ControlsStateChange(ControlsState::Wait);
 
     String^ dirPlugin = Append(cmbUEFolder->SelectedItem->ToString(), "\\Engine\\Plugins\\");
@@ -215,6 +223,21 @@ void AppForm::grdPlugins_CurrentCellDirtyStateChanged ( System::Object^ sender, 
     }
 }
 
+void AppForm::mnuShow_MouseHover(System::Object^ sender, System::EventArgs^ e)
+{
+  StatusUpdate("Filter list to show All plugins or only Enabled plugins.");
+}
+
+void AppForm::mnuBackup_MouseHover(System::Object^ sender, System::EventArgs^ e)
+{
+  StatusUpdate("Save or Load backup of plugins state.");
+}
+
+void AppForm::mnuTemplate_MouseHover(System::Object^ sender, System::EventArgs^ e)
+{
+  StatusUpdate("Save or Load templates of plugins state lists.");
+}
+
 void StateUpdate(AppState State)
 {
     switch ( State ) {
@@ -242,7 +265,7 @@ String^ ReplaceSlashes(String^ Path)
 void Searching(String^ Path)
 {
     StateUpdate(AppState::Wait);
-    AppForm::StatusUpdate("Searching UPlugins ...");
+    StatusUpdate("Searching UPlugins ...");
     ControlsStateChange(ControlsState::Wait);
     AppForm::dtbPlugins->Clear();
     AppForm::dtbPluginsOrig->Clear();
@@ -266,7 +289,7 @@ void Searching(String^ Path)
     AppForm::grdPlugins->CurrentCell = AppForm::grdPlugins[0,0];
 
     ControlsStateChange(ControlsState::Default);
-    AppForm::StatusUpdate(Append(Append(Append(CountEnabledByDefault().ToString(), " plugins Enabled By Default. " ), AppForm::dtbPlugins->Rows->Count.ToString()), " plugins total."));
+    StatusUpdate(Append(Append(Append(CountEnabledByDefault().ToString(), " plugins Enabled By Default. " ), AppForm::dtbPlugins->Rows->Count.ToString()), " plugins total."));
     StateUpdate(AppState::Default);
 }
 
@@ -279,7 +302,7 @@ void FindUPlugin(String^ Path)
             continue;
         }
 
-        AppForm::StatusUpdate(Append("Searching UPlugins :", dirPlugin));
+        StatusUpdate(Append("Searching UPlugins :", dirPlugin));
         Application::DoEvents();
 
         for each (String^ mFile in Directory::GetFiles( dirPlugin, "*.uplugin" ) )
@@ -415,8 +438,7 @@ void ControlsStateChange(ControlsState State)
     bool bState = (bool)State;
     AppForm::cmbUEFolder->Enabled = bState;
     AppForm::btnBrowse->Enabled = bState;
-    AppForm::btnMenu->Enabled = bState;
-    AppForm::btnMinimal->Enabled = bState;
+    AppForm::mnuMain->Enabled = bState;
     AppForm::btnSave->Enabled = bState;
     AppForm::grdPlugins->Enabled = bState;
   
@@ -445,7 +467,7 @@ void BackupAll()
   String^ bkpPath = Append(Application::StartupPath, "\\UEPlugins_DisableDefault.uplugins_backup");
   if (!File::Exists(bkpPath)) {
     StateUpdate(AppState::Wait);
-    AppForm::StatusUpdate("Generating backup before first use...");
+    StatusUpdate("Generating backup before first use...");
     ControlsStateChange(ControlsState::Wait);
 
     FileStream^ newStream = gcnew FileStream(bkpPath, FileMode::CreateNew);
@@ -464,14 +486,14 @@ void BackupAll()
     newWriter->Close();
     newStream->Close();
     ControlsStateChange(ControlsState::Default);
-    AppForm::StatusUpdate(Append("Backup created at ", bkpPath));
+    StatusUpdate(Append("Backup created at ", bkpPath));
     StateUpdate(AppState::Default);
   } else {
-    AppForm::StatusUpdate("");
+    StatusUpdate("");
   }
 }
 
-Generic::List<String^>^ FindAllUPlugins(String^ Path) {
+List<String^>^ FindAllUPlugins(String^ Path) {
   Generic::List<String^>^ aPluginsList = gcnew Generic::List<String^>();
   for each (String ^ dirPlugin in Directory::EnumerateDirectories(Path)) {
     if (IsIgnoredFolder(dirPlugin)) {
@@ -491,21 +513,32 @@ Generic::List<String^>^ FindAllUPlugins(String^ Path) {
   return aPluginsList;
 }
 
-void AppForm::btnBackup_Click(System::Object^ sender, System::EventArgs^ e)
-{
-}
-
 void AppForm::mnuBackupSave_Click(System::Object^ sender, System::EventArgs^ e)
 {
-  String^ bkpPath = Append(Application::StartupPath, "\\*.uplugins_backup");
+  bool bIsTemplate = false;
+  bIsTemplate = sender->ToString()->Contains("template");
+
+  String^ bkpPath;
+  if (!bIsTemplate) {
+    bkpPath = Append(Application::StartupPath, "\\*.uplugins_backup");
+  } else {
+    bkpPath = Append(Application::StartupPath, "\\*.uplugins_template");
+  }
 
   SaveFileDialog^ dlgBkpSave = gcnew SaveFileDialog();
   dlgBkpSave->AddExtension = true;
   dlgBkpSave->CheckPathExists = true;
-  dlgBkpSave->FileName = "MyBackup_01";
-  dlgBkpSave->DefaultExt = ".uplugins_backup";
-  dlgBkpSave->Filter = "Default|*.uplugins_backup";
-  dlgBkpSave->Title = "Save uplugins_backup";
+  if (!bIsTemplate) {
+    dlgBkpSave->FileName = "MyBackup_01";
+    dlgBkpSave->DefaultExt = ".uplugins_backup";
+    dlgBkpSave->Filter = "Default|*.uplugins_backup";
+    dlgBkpSave->Title = "Save uplugins_backup";
+  } else {
+    dlgBkpSave->FileName = "MyTemplate_01";
+    dlgBkpSave->DefaultExt = ".uplugins_template";
+    dlgBkpSave->Filter = "Default|*.uplugins_template";
+    dlgBkpSave->Title = "Save uplugins_template";
+  }
   dlgBkpSave->InitialDirectory = Application::StartupPath;
   dlgBkpSave->OverwritePrompt = true;
   if (dlgBkpSave->ShowDialog() == Windows::Forms::DialogResult::OK) {
@@ -520,7 +553,11 @@ void AppForm::mnuBackupSave_Click(System::Object^ sender, System::EventArgs^ e)
     }
 
     StateUpdate(AppState::Wait);
-    AppForm::StatusUpdate("Saving backup...");
+    if (!bIsTemplate) {
+      StatusUpdate("Saving backup...");
+    } else {
+      StatusUpdate("Saving template...");
+    }
     ControlsStateChange(ControlsState::Wait);
 
     if (File::Exists(bkpPath)) File::Delete(bkpPath);
@@ -529,36 +566,65 @@ void AppForm::mnuBackupSave_Click(System::Object^ sender, System::EventArgs^ e)
     for each (DataRow ^ mDRPlug in dtbPlugins->Rows) {
       String^ UEPath = Append(AppForm::cmbUEFolder->SelectedItem->ToString(), "\\Engine\\Plugins\\");
       if (mDRPlug["celEnabledByDefault"]->ToString()->ToLower() == "true") {
-        newWriter->WriteLine(Append(UEPath, mDRPlug["celPath"]->ToString()));
+        if (!bIsTemplate) {
+          newWriter->WriteLine(Append(UEPath, mDRPlug["celPath"]->ToString()));
+        } else {
+          newWriter->WriteLine(mDRPlug["celPath"]->ToString());
+        }
       }
     }
     newWriter->Close();
     newStream->Close();
 
     ControlsStateChange(ControlsState::Default);
-    AppForm::StatusUpdate(Append("Backup created at ", bkpPath));
+    if (!bIsTemplate) {
+      StatusUpdate(Append("Backup created at ", bkpPath));
+    } else {
+      StatusUpdate(Append("Template created at ", bkpPath));
+    }
     StateUpdate(AppState::Default);
   }
 }
 
 void AppForm::mnuBackupLoad_Click(System::Object^ sender, System::EventArgs^ e)
 {
-  String^ bkpPath = Append(Application::StartupPath, "\\*.uplugins_backup");
+  bool bIsTemplate = false;
+  bIsTemplate = sender->ToString()->Contains("template");
+
+  String^ bkpPath;
+  if (!bIsTemplate) {
+    bkpPath = Append(Application::StartupPath, "\\*.uplugins_backup");
+  } else {
+    bkpPath = Append(Application::StartupPath, "\\*.uplugins_template");
+  }
 
   OpenFileDialog^ dlgBkpSave = gcnew OpenFileDialog();
   dlgBkpSave->AddExtension = true;
   dlgBkpSave->CheckFileExists = true;
   dlgBkpSave->CheckPathExists = true;
-  dlgBkpSave->FileName = "MyBackup_01";
-  dlgBkpSave->DefaultExt = ".uplugins_backup";
-  dlgBkpSave->Filter = "Default|*.uplugins_backup";
-  dlgBkpSave->Title = "Load uplugins_backup";
+
+  if (!bIsTemplate) {
+    dlgBkpSave->FileName = "MyBackup_01";
+    dlgBkpSave->DefaultExt = ".uplugins_backup";
+    dlgBkpSave->Filter = "Default|*.uplugins_backup";
+    dlgBkpSave->Title = "Load uplugins_backup";
+  } else {
+    dlgBkpSave->FileName = "MyTemplate_01";
+    dlgBkpSave->DefaultExt = ".uplugins_template";
+    dlgBkpSave->Filter = "Default|*.uplugins_template";
+    dlgBkpSave->Title = "Load uplugins_template";
+  }
+
   dlgBkpSave->InitialDirectory = Application::StartupPath;
   if (dlgBkpSave->ShowDialog() == Windows::Forms::DialogResult::OK) {
     bkpPath = dlgBkpSave->FileName;
 
     StateUpdate(AppState::Wait);
-    AppForm::StatusUpdate("Loading backup...");
+    if (!bIsTemplate) {
+      StatusUpdate("Loading backup...");
+    } else {
+      StatusUpdate("Loading template...");
+    }
     ControlsStateChange(ControlsState::Wait);
 
     int Counter = 0;
@@ -571,7 +637,16 @@ void AppForm::mnuBackupLoad_Click(System::Object^ sender, System::EventArgs^ e)
     while (!newReader->EndOfStream)
     {
       String^ sLine = newReader->ReadLine();
-      if (sLine->Contains(UEPath)) {
+      if (!bIsTemplate) {
+        if (sLine->Contains(UEPath)) {
+          for each (DataRow ^ mDRPlug in dtbPlugins->Rows) {
+            if (sLine->Contains(mDRPlug["celPath"]->ToString())) {
+              mDRPlug["celEnabledByDefault"] = true;
+              Counter++;
+            }
+          }
+        }
+      } else {
         for each (DataRow ^ mDRPlug in dtbPlugins->Rows) {
           if (sLine->Contains(mDRPlug["celPath"]->ToString())) {
             mDRPlug["celEnabledByDefault"] = true;
@@ -584,8 +659,22 @@ void AppForm::mnuBackupLoad_Click(System::Object^ sender, System::EventArgs^ e)
     newStream->Close();
 
     ControlsStateChange(ControlsState::Default);
-    AppForm::StatusUpdate(Append(Append("Backup loaded. ", Counter.ToString()), " plugins EnabledByDefault."));
+    if (!bIsTemplate) {
+      StatusUpdate(Append(Append("Backup loaded. ", Counter.ToString()), " plugins EnabledByDefault."));
+    } else {
+      StatusUpdate(Append(Append("Template loaded. ", Counter.ToString()), " plugins EnabledByDefault."));
+    }
     StateUpdate(AppState::Default);
   }
 }
 
+
+void AppForm::mnuTemplateSave_Click(System::Object^ sender, System::EventArgs^ e)
+{
+  mnuBackupSave_Click(sender, e);
+}
+
+void AppForm::mnuTemplateLoad_Click(System::Object^ sender, System::EventArgs^ e)
+{
+  mnuBackupLoad_Click(sender, e);
+}
