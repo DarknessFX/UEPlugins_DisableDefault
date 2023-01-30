@@ -14,6 +14,8 @@ using namespace UEPluginsDisableDefault;
 
 void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
 {
+    Application::EnableVisualStyles();
+
     StateUpdate(AppState::Wait);
     cmbUEFolder->Items->Clear();
     dtbPlugins->Clear();
@@ -30,11 +32,12 @@ void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
         String^ UEPath = BuildKey->GetValue("InstalledDirectory")->ToString();
         if (Directory::Exists(UEPath)) {
           cmbUEFolder->Items->Add(UEPath);
-          if (UEDefaultPath->Contains(UEPath)) {
-            cmbUEFolder->SelectedIndex = cmbUEFolder->Items->Count - 1;
-          }
         }
       }
+    }
+
+    if (cmbUEFolder->Items->Count != 0) {
+      cmbUEFolder->SelectedIndex = cmbUEFolder->Items->Count - 1;
     }
 
     StatusUpdate("Finding .uplugins_backup with our backup file.");
@@ -58,7 +61,7 @@ void AppForm::UpdateFlow ( )
       btnBrowse->Width - 
       lblUEFolder->Width - 
       txtSearch->Width - 
-      28;
+      56;
 }
 
 void StatusUpdate(String^ Message) 
@@ -460,6 +463,11 @@ void AppForm::txtSearch_GotFocus(System::Object^ sender, System::EventArgs^ e)
 void AppForm::txtSearch_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 {
   AppForm::dtbPlugins->DefaultView->RowFilter = String::Format("celFriendlyName LIKE '%{0}%'", txtSearch->Text);
+
+  if (e->Control && e->KeyCode == Keys::A) {
+    if (sender != NULL)
+      ((TextBox^)sender)->SelectAll();
+  }
 }
 
 void BackupAll() 

@@ -62,8 +62,8 @@ IDI_ICON1               ICON                    "res/icon1.ico"
 // Version
 //
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1, 1, 0, 0
-  PRODUCTVERSION 1, 1, 0, 0
+  FILEVERSION 1, 1, 1, 0
+  PRODUCTVERSION 1, 1, 1, 0
   FILEFLAGSMASK 0x3fL
   #ifdef _DEBUG
   FILEFLAGS 0x1L
@@ -80,12 +80,12 @@ VS_VERSION_INFO VERSIONINFO
       BEGIN
       VALUE "CompanyName", "DarknessFX"
       VALUE "FileDescription", "Tool for manage Unreal Engine Plugins EnabledByDefault."
-      VALUE "FileVersion", "1.1.0"
+      VALUE "FileVersion", "1.1.1"
       VALUE "InternalName", "UEPlugins_DisableDefault"
       VALUE "LegalCopyright", "Copyright © 2023"
       VALUE "OriginalFilename", "UEPlugins_DisableDefault.exe"
       VALUE "ProductName", "UEPlugins_DisableDefault"
-      VALUE "ProductVersion", "1.1.0"
+      VALUE "ProductVersion", "1.1.1"
     END
   END
   BLOCK "VarFileInfo"

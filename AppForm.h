@@ -68,7 +68,6 @@ public: static System::Data::DataTable^ dtbPluginsOrig;
 public: static System::Windows::Forms::DataGridView^ grdPlugins;
 public: static System::Windows::Forms::MenuStrip^ mnuStrip;
 public: static System::Windows::Forms::ToolStripMenuItem^ mnuMain;
-public: static System::Windows::Forms::Splitter^ splitter1;
 public: static System::Windows::Forms::ToolStripMenuItem^ mnuShow;
 public: static System::Windows::Forms::ToolStripMenuItem^ mnuShowAll;
 public: static System::Windows::Forms::ToolStripMenuItem^ mnuShowEnabled;
@@ -117,6 +116,9 @@ System::Windows::Forms::DataGridViewTextBoxColumn^ celFriendlyNameDataGridViewTe
 System::Windows::Forms::DataGridViewTextBoxColumn^ celDescriptionDataGridViewTextBoxColumn;
 System::Windows::Forms::DataGridViewTextBoxColumn^ celPathDataGridViewTextBoxColumn;
 System::Windows::Forms::DataGridViewTextBoxColumn^ celVersionNameDataGridViewTextBoxColumn;
+System::Windows::Forms::PictureBox^ imgSearch;
+System::Windows::Forms::Splitter^ splitter1;
+System::Windows::Forms::Splitter^ splitter2;
 
 /// <summary>
 /// Required designer variable.
@@ -152,6 +154,7 @@ void InitializeComponent(void)
   this->lblUEFolder = (gcnew System::Windows::Forms::Label());
   this->cmbUEFolder = (gcnew System::Windows::Forms::ComboBox());
   this->btnBrowse = (gcnew System::Windows::Forms::Button());
+  this->imgSearch = (gcnew System::Windows::Forms::PictureBox());
   this->txtSearch = (gcnew System::Windows::Forms::TextBox());
   this->dlgBrowse = (gcnew System::Windows::Forms::FolderBrowserDialog());
   this->datPlugins = (gcnew System::Data::DataSet());
@@ -176,9 +179,11 @@ void InitializeComponent(void)
   this->celDescriptionDataGridViewTextBoxColumn = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
   this->celPathDataGridViewTextBoxColumn = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
   this->celVersionNameDataGridViewTextBoxColumn = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+  this->splitter2 = (gcnew System::Windows::Forms::Splitter());
   this->stsStrip->SuspendLayout();
   this->flwUEFolder->SuspendLayout();
   this->mnuStrip->SuspendLayout();
+  (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->imgSearch))->BeginInit();
   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->datPlugins))->BeginInit();
   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dtbPlugins))->BeginInit();
   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dtbPluginsOrig))->BeginInit();
@@ -203,7 +208,7 @@ void InitializeComponent(void)
     static_cast<System::Byte>(0)));
   this->lblStatus->Name = L"lblStatus";
   this->lblStatus->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
-  this->lblStatus->Size = System::Drawing::Size(840, 17);
+  this->lblStatus->Size = System::Drawing::Size(834, 17);
   this->lblStatus->Spring = true;
   this->lblStatus->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
   // 
@@ -217,7 +222,7 @@ void InitializeComponent(void)
   this->btnSave->Margin = System::Windows::Forms::Padding(4, 2, 4, 0);
   this->btnSave->Name = L"btnSave";
   this->btnSave->ShowDropDownArrow = false;
-  this->btnSave->Size = System::Drawing::Size(100, 20);
+  this->btnSave->Size = System::Drawing::Size(106, 20);
   this->btnSave->Text = L"Apply changes";
   this->btnSave->ToolTipText = L"Write your changes to .uplugin files.";
   this->btnSave->Click += gcnew System::EventHandler(this, &AppForm::btnSave_Click);
@@ -231,6 +236,8 @@ void InitializeComponent(void)
   this->flwUEFolder->Controls->Add(this->lblUEFolder);
   this->flwUEFolder->Controls->Add(this->cmbUEFolder);
   this->flwUEFolder->Controls->Add(this->btnBrowse);
+  this->flwUEFolder->Controls->Add(this->splitter2);
+  this->flwUEFolder->Controls->Add(this->imgSearch);
   this->flwUEFolder->Controls->Add(this->txtSearch);
   this->flwUEFolder->Dock = System::Windows::Forms::DockStyle::Top;
   this->flwUEFolder->Location = System::Drawing::Point(0, 0);
@@ -245,16 +252,15 @@ void InitializeComponent(void)
   this->mnuStrip->Location = System::Drawing::Point(0, 0);
   this->mnuStrip->Name = L"mnuStrip";
   this->mnuStrip->Padding = System::Windows::Forms::Padding(0);
-  this->mnuStrip->Size = System::Drawing::Size(177, 26);
+  this->mnuStrip->Size = System::Drawing::Size(57, 26);
   this->mnuStrip->TabIndex = 6;
   this->mnuStrip->Text = L"mnuStrip";
   // 
   // mnuMain
   // 
   this->mnuMain->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
-    this->mnuShow, 
-    this->mnuBackup,
-    this->mnuTemplate
+    this->mnuShow, this->mnuBackup,
+      this->mnuTemplate
   });
   this->mnuMain->Font = (gcnew System::Drawing::Font(L"Roboto", 8.25F, System::Drawing::FontStyle::Bold));
   this->mnuMain->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"mnuMain.Image")));
@@ -268,10 +274,10 @@ void InitializeComponent(void)
   // 
   this->mnuShow->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
     this->mnuShowAll,
-    this->mnuShowEnabled
+      this->mnuShowEnabled
   });
   this->mnuShow->Name = L"mnuShow";
-  this->mnuShow->Size = System::Drawing::Size(180, 22);
+  this->mnuShow->Size = System::Drawing::Size(122, 22);
   this->mnuShow->Text = L"Filter";
   this->mnuShow->MouseHover += gcnew System::EventHandler(this, &AppForm::mnuShow_MouseHover);
   // 
@@ -280,14 +286,14 @@ void InitializeComponent(void)
   this->mnuShowAll->Checked = true;
   this->mnuShowAll->CheckState = System::Windows::Forms::CheckState::Checked;
   this->mnuShowAll->Name = L"mnuShowAll";
-  this->mnuShowAll->Size = System::Drawing::Size(180, 22);
+  this->mnuShowAll->Size = System::Drawing::Size(169, 22);
   this->mnuShowAll->Text = L"Show All";
   this->mnuShowAll->Click += gcnew System::EventHandler(this, &AppForm::mnuShowAll_Click);
   // 
   // mnuShowEnabled
   // 
   this->mnuShowEnabled->Name = L"mnuShowEnabled";
-  this->mnuShowEnabled->Size = System::Drawing::Size(180, 22);
+  this->mnuShowEnabled->Size = System::Drawing::Size(169, 22);
   this->mnuShowEnabled->Text = L"Show Enabled Only";
   this->mnuShowEnabled->Click += gcnew System::EventHandler(this, &AppForm::mnuShowEnabled_Click);
   // 
@@ -295,10 +301,10 @@ void InitializeComponent(void)
   // 
   this->mnuBackup->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
     this->mnuBackupSave,
-    this->mnuBackupLoad
+      this->mnuBackupLoad
   });
   this->mnuBackup->Name = L"mnuBackup";
-  this->mnuBackup->Size = System::Drawing::Size(180, 22);
+  this->mnuBackup->Size = System::Drawing::Size(122, 22);
   this->mnuBackup->Text = L"Backup";
   this->mnuBackup->MouseHover += gcnew System::EventHandler(this, &AppForm::mnuBackup_MouseHover);
   // 
@@ -320,11 +326,10 @@ void InitializeComponent(void)
   // 
   this->mnuTemplate->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
     this->mnuTemplateSave,
-    this->mnuTemplateLoad,
-    this->mnuTemplateMinimal
+      this->mnuTemplateLoad, this->mnuTemplateMinimal
   });
   this->mnuTemplate->Name = L"mnuTemplate";
-  this->mnuTemplate->Size = System::Drawing::Size(180, 22);
+  this->mnuTemplate->Size = System::Drawing::Size(122, 22);
   this->mnuTemplate->Text = L"Template";
   this->mnuTemplate->MouseHover += gcnew System::EventHandler(this, &AppForm::mnuTemplate_MouseHover);
   // 
@@ -345,15 +350,16 @@ void InitializeComponent(void)
   // mnuTemplateMinimal
   // 
   this->mnuTemplateMinimal->Name = L"mnuTemplateMinimal";
-  this->mnuTemplateMinimal->Size = System::Drawing::Size(180, 22);
+  this->mnuTemplateMinimal->Size = System::Drawing::Size(147, 22);
   this->mnuTemplateMinimal->Text = L"Apply Minimal";
   this->mnuTemplateMinimal->Click += gcnew System::EventHandler(this, &AppForm::mnuTemplateMinimal_Click);
   // 
   // splitter1
   // 
-  this->splitter1->Location = System::Drawing::Point(180, 3);
+  this->splitter1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+  this->splitter1->Location = System::Drawing::Point(60, 3);
   this->splitter1->Name = L"splitter1";
-  this->splitter1->Size = System::Drawing::Size(3, 24);
+  this->splitter1->Size = System::Drawing::Size(2, 24);
   this->splitter1->TabIndex = 7;
   this->splitter1->TabStop = false;
   // 
@@ -363,7 +369,7 @@ void InitializeComponent(void)
   this->lblUEFolder->Dock = System::Windows::Forms::DockStyle::Left;
   this->lblUEFolder->Font = (gcnew System::Drawing::Font(L"Roboto", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
     static_cast<System::Byte>(0)));
-  this->lblUEFolder->Location = System::Drawing::Point(189, 10);
+  this->lblUEFolder->Location = System::Drawing::Point(72, 10);
   this->lblUEFolder->Margin = System::Windows::Forms::Padding(3, 10, 3, 0);
   this->lblUEFolder->Name = L"lblUEFolder";
   this->lblUEFolder->Size = System::Drawing::Size(109, 20);
@@ -377,7 +383,7 @@ void InitializeComponent(void)
   this->cmbUEFolder->FlatStyle = System::Windows::Forms::FlatStyle::System;
   this->cmbUEFolder->Font = (gcnew System::Drawing::Font(L"Roboto", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
     static_cast<System::Byte>(0)));
-  this->cmbUEFolder->Location = System::Drawing::Point(304, 5);
+  this->cmbUEFolder->Location = System::Drawing::Point(187, 5);
   this->cmbUEFolder->Margin = System::Windows::Forms::Padding(3, 5, 3, 3);
   this->cmbUEFolder->Name = L"cmbUEFolder";
   this->cmbUEFolder->Size = System::Drawing::Size(240, 21);
@@ -393,7 +399,7 @@ void InitializeComponent(void)
     static_cast<System::Byte>(0)));
   this->btnBrowse->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnBrowse.Image")));
   this->btnBrowse->ImageAlign = System::Drawing::ContentAlignment::TopLeft;
-  this->btnBrowse->Location = System::Drawing::Point(550, 3);
+  this->btnBrowse->Location = System::Drawing::Point(433, 3);
   this->btnBrowse->Name = L"btnBrowse";
   this->btnBrowse->Size = System::Drawing::Size(72, 24);
   this->btnBrowse->TabIndex = 2;
@@ -402,17 +408,42 @@ void InitializeComponent(void)
   this->btnBrowse->UseVisualStyleBackColor = true;
   this->btnBrowse->Click += gcnew System::EventHandler(this, &AppForm::btnBrowse_Click);
   // 
+  // splitter2
+  // 
+  this->splitter2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+  this->splitter2->Location = System::Drawing::Point(654, 3);
+  this->splitter2->Name = L"splitter2";
+  this->splitter2->Size = System::Drawing::Size(2, 24);
+  this->splitter2->TabIndex = 9;
+  this->splitter2->TabStop = false;
+  // 
+  // imgSearch
+  // 
+  this->imgSearch->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"imgSearch.BackgroundImage")));
+  this->imgSearch->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
+  this->imgSearch->Location = System::Drawing::Point(508, 5);
+  this->imgSearch->Margin = System::Windows::Forms::Padding(0, 5, 0, 0);
+  this->imgSearch->Name = L"imgSearch";
+  this->imgSearch->Size = System::Drawing::Size(20, 20);
+  this->imgSearch->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
+  this->imgSearch->TabIndex = 8;
+  this->imgSearch->TabStop = false;
+  // 
   // txtSearch
   // 
+  this->txtSearch->AcceptsReturn = true;
+  this->txtSearch->AcceptsTab = true;
   this->txtSearch->Dock = System::Windows::Forms::DockStyle::Top;
   this->txtSearch->Font = (gcnew System::Drawing::Font(L"Roboto", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
     static_cast<System::Byte>(0)));
-  this->txtSearch->Location = System::Drawing::Point(628, 5);
-  this->txtSearch->Margin = System::Windows::Forms::Padding(3, 5, 3, 0);
+  this->txtSearch->HideSelection = false;
+  this->txtSearch->Location = System::Drawing::Point(528, 5);
+  this->txtSearch->Margin = System::Windows::Forms::Padding(0, 5, 3, 0);
+  this->txtSearch->MaxLength = 200;
   this->txtSearch->Name = L"txtSearch";
   this->txtSearch->Size = System::Drawing::Size(120, 21);
   this->txtSearch->TabIndex = 3;
-  this->txtSearch->Text = L"Search";
+  this->txtSearch->WordWrap = false;
   this->txtSearch->GotFocus += gcnew System::EventHandler(this, &AppForm::txtSearch_GotFocus);
   this->txtSearch->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &AppForm::txtSearch_KeyUp);
   // 
@@ -633,6 +664,7 @@ void InitializeComponent(void)
   this->flwUEFolder->PerformLayout();
   this->mnuStrip->ResumeLayout(false);
   this->mnuStrip->PerformLayout();
+  (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->imgSearch))->EndInit();
   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->datPlugins))->EndInit();
   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dtbPlugins))->EndInit();
   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dtbPluginsOrig))->EndInit();
