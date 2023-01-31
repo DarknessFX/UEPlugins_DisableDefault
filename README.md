@@ -38,7 +38,7 @@ The only way to change plugins **EnabledByDefault** is to manually change the .u
 
 Because this changes are made in the Engine\Plugins, there are other benefits in changing .uplugins settings because this changes only affect your Engine installation,  for example you can **EnabledByDefault** plugins that you want always enabled, like RenderDoc, DFoundryFX, ElectronicNodes and this changes won't affect the .uproject file and is invisible to other devs that share the same .uproject.
 
-*UEPlugins_DisableDefault* tool provides a better way to manage **EnabledByDefault** settings of Unreal Engine plugins.
+*UEPlugins_DisableDefault* tool provide a better way to manage **EnabledByDefault** settings of Unreal Engine plugins.
 
 ## Credits
 
