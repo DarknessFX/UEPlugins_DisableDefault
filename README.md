@@ -16,7 +16,7 @@
 
 Tool for manage Unreal Engine Plugins (.uplugins) set to Enabled By Default .<br/>
 
-<img src="https://raw.githubusercontent.com/DarknessFX/UEPlugins_DisableDefault/main/.git_img/screenshot.jpg" width="640px" />
+<img src="https://raw.githubusercontent.com/DarknessFX/UEPlugins_DisableDefault/main/.git_img/screenshot_01.png" width="640px" />
 
 Unreal Engine have around 100+ plugins enabled by default. To disable one of those plugins you need to look for the respective .uplugin file and change the property *"EnabledByDefault": true* to *false*, this tool is made to easier manage this setting.<br/><br/>
 
