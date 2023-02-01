@@ -32,7 +32,7 @@ Around *140+ plugins are always enabled* (**EnabledByDefault**) in UE5, to verif
 
 You can manually disable plugins using the Plugin Browser but because they're **EnabledByDefault** everytime you create a new project you need to disable again, some common plugins that you maybe want to keep always disabled are ArchViz Character, Apple/Mac/iOS, Linux, Android, Hololens, MagicLeap, Steam and Oculus VR, AR, AudioCapture, IDE integration.
 
-In UE4 some plugins like SteamVR display a warning popup (Your HDM is disconnected) eveytime you open a project and it was annoying ( like described in this <a href="https://forums.unrealengine.com/t/please-dont-launch-steamvr-with-the-editor-every-time-it-was-already-annoying-in-ue4/231420" target="_blank">thread</a> ).
+In UE4 some plugins like SteamVR display a warning popup (Headset not detected) eveytime you open a project and it was annoying ( like described in this <a href="https://forums.unrealengine.com/t/please-dont-launch-steamvr-with-the-editor-every-time-it-was-already-annoying-in-ue4/231420" target="_blank">thread</a> ).
 
 The only way to change plugins **EnabledByDefault** is to manually change the .uplugin file descriptor for every plugin you want to disable, **UEFolder\Engine\Plugins** have 18.000+ subfolders, you can spend some time searching to find where the .uplugin you want to disable is located. And later when you update your UE version, all your changes are wasted because the update overwrite .uplugins to default again.
 
