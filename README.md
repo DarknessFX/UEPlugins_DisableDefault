@@ -24,7 +24,7 @@ Project info/blog at <a href="https://dfx.lv/UEPlugins_DisableDefault" target="_
 
 ## About
 
-When you install (or build) Unreal Engine in your computer, it comes with a almost 500 plugins ( **UEFolder\Engine\Plugins** ). Plugins expand Unreal Engine features to include VR, AR, ArchViz, VirtualProduction, Mobile, Import/Export formats, Movie and Audio codecs, Python and more, you can enable or disable plugins per project when you need these features and you can also install more plugins from open source or Unreal Marketplace.
+When you install (or build) Unreal Engine in your computer, it comes with almost 500 plugins ( **UEFolder\Engine\Plugins** ). Plugins expand Unreal Engine features to include VR, AR, ArchViz, VirtualProduction, Mobile, Import/Export formats, Movie and Audio codecs, Python and more, you can enable or disable plugins per project when you need these features and you can also install more plugins from open source or Unreal Marketplace.
 
 Around *140+ plugins are always enabled* (**EnabledByDefault**) in UE5, to verify you can create a NewProject, go to Tools > Plugins > Settings > Show Only Enabled.
 
