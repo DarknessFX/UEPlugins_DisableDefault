@@ -301,7 +301,7 @@ void InitializeComponent(void)
   // 
   this->mnuBackup->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
     this->mnuBackupSave,
-      this->mnuBackupLoad
+    this->mnuBackupLoad
   });
   this->mnuBackup->Name = L"mnuBackup";
   this->mnuBackup->Size = System::Drawing::Size(122, 22);
@@ -545,9 +545,9 @@ void InitializeComponent(void)
   this->grdPlugins->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
   this->grdPlugins->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(9) {
     this->celEnabledByDefaultDataGridViewCheckBoxColumn,
-      this->celInstalledDataGridViewCheckBoxColumn, this->celCategoryDataGridViewTextBoxColumn, this->celIconDataGridViewImageColumn,
-      this->celNameDataGridViewTextBoxColumn, this->celFriendlyNameDataGridViewTextBoxColumn, this->celDescriptionDataGridViewTextBoxColumn,
-      this->celPathDataGridViewTextBoxColumn, this->celVersionNameDataGridViewTextBoxColumn
+    this->celInstalledDataGridViewCheckBoxColumn, this->celCategoryDataGridViewTextBoxColumn, this->celIconDataGridViewImageColumn,
+    this->celNameDataGridViewTextBoxColumn, this->celFriendlyNameDataGridViewTextBoxColumn, this->celDescriptionDataGridViewTextBoxColumn,
+    this->celPathDataGridViewTextBoxColumn, this->celVersionNameDataGridViewTextBoxColumn
   });
   this->grdPlugins->DataMember = L"dtbPlugins";
   this->grdPlugins->DataSource = this->datPlugins;
@@ -561,6 +561,7 @@ void InitializeComponent(void)
   this->grdPlugins->TabIndex = 4;
   this->grdPlugins->VirtualMode = true;
   this->grdPlugins->CurrentCellDirtyStateChanged += gcnew System::EventHandler(this, &AppForm::grdPlugins_CurrentCellDirtyStateChanged);
+  this->grdPlugins->CellDoubleClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &AppForm::grdPlugins_CellDoubleClick);
   // 
   // celEnabledByDefaultDataGridViewCheckBoxColumn
   // 
@@ -576,7 +577,7 @@ void InitializeComponent(void)
   this->celInstalledDataGridViewCheckBoxColumn->FillWeight = 60;
   this->celInstalledDataGridViewCheckBoxColumn->HeaderText = L"Installed";
   this->celInstalledDataGridViewCheckBoxColumn->Name = L"celInstalledDataGridViewCheckBoxColumn";
-  this->celInstalledDataGridViewCheckBoxColumn->ReadOnly = true;
+  //this->celInstalledDataGridViewCheckBoxColumn->ReadOnly = true;
   this->celInstalledDataGridViewCheckBoxColumn->Width = 60;
   // 
   // celCategoryDataGridViewTextBoxColumn
@@ -682,6 +683,7 @@ void cmbUEFolder_SelectedIndexChanged ( System::Object^ sender, System::EventArg
 void btnBrowse_Click ( System::Object^ sender, System::EventArgs^ e );
 void btnSave_Click ( System::Object^ sender, System::EventArgs^ e );
 void grdPlugins_CurrentCellDirtyStateChanged ( System::Object^ sender, System::EventArgs^ e );
+void grdPlugins_CellDoubleClick ( System::Object^ sender, DataGridViewCellEventArgs^ e );
 void txtSearch_GotFocus(System::Object^ sender, System::EventArgs^ e);
 void txtSearch_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 

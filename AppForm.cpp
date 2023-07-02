@@ -44,6 +44,7 @@ void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
     BackupAll();
 
     UpdateFlow();
+    mnuTemplateMinimal->Visible = false;
     cmbUEFolder->Focus();
     StateUpdate(AppState::Default);
 }    
@@ -159,7 +160,8 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
         {
             if (mDRPlug["celName"] == mDROrig["celName"])
             {
-                if ((bool)mDRPlug["celEnabledByDefault"] != (bool)mDROrig["celEnabledByDefault"]) 
+                if ((bool)mDRPlug["celEnabledByDefault"] != (bool)mDROrig["celEnabledByDefault"] || 
+                    (bool)mDRPlug["celInstalled"] != (bool)mDROrig["celInstalled"]) 
                 {
                     filePlugin = Append(dirPlugin, mDRPlug["celPath"]->ToString());
                     File::Move(filePlugin, Append(filePlugin, "_UEPlugins_DisableDefault"));
@@ -171,17 +173,23 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
                     FileStream^ newStream = gcnew FileStream(filePlugin, FileMode::CreateNew);
                     StreamWriter^ newWriter = gcnew StreamWriter(newStream);
 
-                    bool bMissingLine = !origReader->ReadToEnd()->Contains("EnabledByDefault");
+                    bool bMissingLineEBD = !origReader->ReadToEnd()->Contains("EnabledByDefault");
+                    bool bMissingLineINS = !origReader->ReadToEnd()->Contains("Installed");
+
                     origReader->DiscardBufferedData();
                     origReader->BaseStream->Seek(0, SeekOrigin::Begin);
                     while ( !origReader->EndOfStream )
                     {
                         String^ line = origReader->ReadLine();
-                        if ( line->Contains("EnabledByDefault") ) 
+                        if ( line->Contains("EnabledByDefault") && (bool)mDRPlug["celEnabledByDefault"] != (bool)mDROrig["celEnabledByDefault"]) 
                         {
                             line = line->Replace(mDROrig["celEnabledByDefault"]->ToString()->ToLower(), mDRPlug["celEnabledByDefault"]->ToString()->ToLower());
                         }
-                        if ( bMissingLine && line->Contains("Modules") )
+                        if ( line->Contains("Installed") && (bool)mDRPlug["celInstalled"] != (bool)mDROrig["celInstalled"]) 
+                        {
+                            line = line->Replace(mDROrig["celInstalled"]->ToString()->ToLower(), mDRPlug["celInstalled"]->ToString()->ToLower());
+                        }
+                        if ( bMissingLineEBD && line->Contains("Modules") )
                         {
                           String^ InsertLine; 
                           InsertLine = "\"EnabledByDefault\": ";
@@ -189,7 +197,17 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
                           InsertLine = InsertLine->Insert(InsertLine->Length, ",\n");
                           InsertLine = InsertLine->Insert(InsertLine->Length, line);
                           line = InsertLine;
-                          bMissingLine = false;
+                          bMissingLineEBD = false;
+                        }
+                        if ( bMissingLineINS && line->Contains("Modules") )
+                        {
+                          String^ InsertLine; 
+                          InsertLine = "\"Installed\": ";
+                          InsertLine = InsertLine->Insert(InsertLine->Length, mDRPlug["celInstalled"]->ToString()->ToLower());
+                          InsertLine = InsertLine->Insert(InsertLine->Length, ",\n");
+                          InsertLine = InsertLine->Insert(InsertLine->Length, line);
+                          line = InsertLine;
+                          bMissingLineINS = false;
                         }
                         newWriter->WriteLine(line);
                     }
@@ -224,6 +242,18 @@ void AppForm::grdPlugins_CurrentCellDirtyStateChanged ( System::Object^ sender, 
         grdPlugins->EndEdit();
         dtbPlugins->AcceptChanges();
     }
+}
+
+void AppForm::grdPlugins_CellDoubleClick ( System::Object^ sender, DataGridViewCellEventArgs^ e )
+{
+  // Double-Click PATH column open Windows Explorer
+  if (e->ColumnIndex == 7) {
+    String^ PluginPath; 
+    PluginPath = Append(cmbUEFolder->SelectedItem->ToString(), "\\Engine\\Plugins\\");
+    PluginPath = Append(PluginPath, grdPlugins[e->ColumnIndex, e->RowIndex]->Value->ToString());
+    PluginPath = PluginPath->Substring(0, PluginPath->LastIndexOf("\\"));
+    System::Diagnostics::Process::Start(PluginPath);
+  }
 }
 
 void AppForm::mnuShow_MouseHover(System::Object^ sender, System::EventArgs^ e)
@@ -398,13 +428,14 @@ void GetJSONValue(String^& str0)
     else 
     {
         str0 = str0->Substring(str0->IndexOf(": ") + 2);
-        if (str0->Substring(str0->Length - 1, 1) == ",") {
+    }
+    if (str0->Length > 0)
+    {
+      str0 = str0->Trim();
+      if (str0->Substring(str0->Length - 1, 1) == ",") 
+      {
           str0 = str0->Substring(0, str0->Length - 1);
-        }
-        else
-        {
-          str0 = str0->Substring(0, str0->Length);
-        }
+      }
     }
 }
 
@@ -465,7 +496,7 @@ void AppForm::txtSearch_KeyUp(System::Object^ sender, System::Windows::Forms::Ke
   AppForm::dtbPlugins->DefaultView->RowFilter = String::Format("celFriendlyName LIKE '%{0}%'", txtSearch->Text);
 
   if (e->Control && e->KeyCode == Keys::A) {
-    if (sender != NULL)
+    if (sender != nullptr)
       ((TextBox^)sender)->SelectAll();
   }
 }
