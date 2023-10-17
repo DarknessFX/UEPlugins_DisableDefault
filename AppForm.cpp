@@ -164,6 +164,9 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
                     (bool)mDRPlug["celInstalled"] != (bool)mDROrig["celInstalled"]) 
                 {
                     filePlugin = Append(dirPlugin, mDRPlug["celPath"]->ToString());
+                    if (File::Exists(Append(filePlugin, "_UEPlugins_DisableDefault"))) {
+                      File::Delete(Append(filePlugin, "_UEPlugins_DisableDefault"));
+                    }
                     File::Move(filePlugin, Append(filePlugin, "_UEPlugins_DisableDefault"));
                     Application::DoEvents();
 
@@ -173,11 +176,14 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
                     FileStream^ newStream = gcnew FileStream(filePlugin, FileMode::CreateNew);
                     StreamWriter^ newWriter = gcnew StreamWriter(newStream);
 
-                    bool bMissingLineEBD = !origReader->ReadToEnd()->Contains("EnabledByDefault");
-                    bool bMissingLineINS = !origReader->ReadToEnd()->Contains("Installed");
-
+                    bool bMissingLineEBD = !origReader->ReadToEnd()->ToLower()->Contains("enabledbydefault");
                     origReader->DiscardBufferedData();
                     origReader->BaseStream->Seek(0, SeekOrigin::Begin);
+
+                    bool bMissingLineINS = !origReader->ReadToEnd()->ToLower()->Contains("installed");
+                    origReader->DiscardBufferedData();
+                    origReader->BaseStream->Seek(0, SeekOrigin::Begin);
+
                     while ( !origReader->EndOfStream )
                     {
                         String^ line = origReader->ReadLine();
@@ -189,25 +195,31 @@ void AppForm::btnSave_Click ( System::Object^ sender, System::EventArgs^ e )
                         {
                             line = line->Replace(mDROrig["celInstalled"]->ToString()->ToLower(), mDRPlug["celInstalled"]->ToString()->ToLower());
                         }
-                        if ( bMissingLineEBD && line->Contains("Modules") )
-                        {
-                          String^ InsertLine; 
-                          InsertLine = "\"EnabledByDefault\": ";
-                          InsertLine = InsertLine->Insert(InsertLine->Length, mDRPlug["celEnabledByDefault"]->ToString()->ToLower());
-                          InsertLine = InsertLine->Insert(InsertLine->Length, ",\n");
-                          InsertLine = InsertLine->Insert(InsertLine->Length, line);
-                          line = InsertLine;
-                          bMissingLineEBD = false;
-                        }
-                        if ( bMissingLineINS && line->Contains("Modules") )
-                        {
-                          String^ InsertLine; 
-                          InsertLine = "\"Installed\": ";
-                          InsertLine = InsertLine->Insert(InsertLine->Length, mDRPlug["celInstalled"]->ToString()->ToLower());
-                          InsertLine = InsertLine->Insert(InsertLine->Length, ",\n");
-                          InsertLine = InsertLine->Insert(InsertLine->Length, line);
-                          line = InsertLine;
-                          bMissingLineINS = false;
+                        if (line->Contains("Modules")) {
+                          int ident_pos = line->ToLower()->IndexOf("modules") - 1;
+                          if ( bMissingLineEBD )
+                          {
+                            String^ identstr = gcnew String(' ', ident_pos);
+                            String^ InsertLine; 
+                            InsertLine = Append(identstr, "\"EnabledByDefault\": ");
+                            InsertLine = InsertLine->Insert(InsertLine->Length, mDRPlug["celEnabledByDefault"]->ToString()->ToLower());
+                            InsertLine = InsertLine->Insert(InsertLine->Length, ",\n");
+                            InsertLine = InsertLine->Insert(InsertLine->Length, line);
+                            line = InsertLine;
+                            bMissingLineEBD = false;
+                          }
+                          if ( bMissingLineINS )
+                          {
+                            String^ identstr = gcnew String(' ', ident_pos);
+                            String^ InsertLine; 
+                            InsertLine = Append(identstr, "\"Installed\": ");
+                            InsertLine = InsertLine->Insert(InsertLine->Length, mDRPlug["celInstalled"]->ToString()->ToLower());
+                            InsertLine = InsertLine->Insert(InsertLine->Length, ",\n");
+                            InsertLine = InsertLine->Insert(InsertLine->Length, line);
+                            line = InsertLine;
+                            bMissingLineINS = false;
+                          }
+
                         }
                         newWriter->WriteLine(line);
                     }
