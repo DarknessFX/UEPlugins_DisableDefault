@@ -40,6 +40,25 @@ Because this changes are made in the Engine\Plugins, there are other benefits in
 
 *UEPlugins_DisableDefault* tool provide a better way to manage **EnabledByDefault** settings of Unreal Engine plugins.
 
+## Build from source
+
+Requirements
+- Visual Studio 2019 or 2022
+- C++/CLI (open Visual Studio Installer > Individual Package > Search "C++/CLI", Add "C++/CLI support for v143 build tools (Latest)".
+
+Download this project:
+- Via ZIP file
+  Download the <a href="https://github.com/DarknessFX/UEPlugins_DisableDefault/archive/refs/heads/main.zip" target="_blank">Project as Zip</a> and unzip to your desired folder.
+
+- Via git clone
+  From "Command Prompt" or "Windows Terminal", go to your desired folder and execute <div>`git clone https://github.com/DarknessFX/UEPlugins_DisableDefault`</div>
+
+From project source folder, open UEPlugins_DisableDefault.sln in Visual Studio and menu Build > Build Solutoion (shortcut Ctrl+Shift+B).
+
+## Download ready to use
+
+Download the latest UEPlugins_DisableDefault.exe in the <a href="https://github.com/DarknessFX/UEPlugins_DisableDefault/releases/latest" target="_blank">Relases</a> page (UEPlugins_DisableDefault.zip).
+
 ## Credits
 
 Icon: DefaultIcon128.png from Unreal Engine by Epic Games. <br/>
