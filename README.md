@@ -47,11 +47,8 @@ Requirements
 - C++/CLI (open Visual Studio Installer > Individual Package > Search "C++/CLI", Add "C++/CLI support for v143 build tools (Latest)".
 
 Download this project:
-- Via ZIP file
-  Download the <a href="https://github.com/DarknessFX/UEPlugins_DisableDefault/archive/refs/heads/main.zip" target="_blank">Project as Zip</a> and unzip to your desired folder.
-
-- Via git clone
-  From "Command Prompt" or "Windows Terminal", go to your desired folder and execute <div>`git clone https://github.com/DarknessFX/UEPlugins_DisableDefault`</div>
+- Via ZIP file, download the <a href="https://github.com/DarknessFX/UEPlugins_DisableDefault/archive/refs/heads/main.zip" target="_blank">Project as Zip</a> and unzip to your desired folder.
+- Via Git clone, from "Command Prompt" or "Windows Terminal", go to your desired folder and execute <div>`git clone https://github.com/DarknessFX/UEPlugins_DisableDefault`</div>
 
 From project source folder, open UEPlugins_DisableDefault.sln in Visual Studio and menu Build > Build Solutoion (shortcut Ctrl+Shift+B).
 
