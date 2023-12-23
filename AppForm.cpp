@@ -92,6 +92,8 @@ void AppForm::mnuShowEnabled_Click ( System::Object^ sender, System::EventArgs^ 
     }
     mnuShowEnabled->Checked = true;
 
+    CurrencyManager^ curMng = (CurrencyManager^)BindingContext[grdPlugins->DataSource];
+    curMng->SuspendBinding();
     for ( int iRow = 0; iRow < AppForm::grdPlugins->Rows->Count; iRow++ )
     {
         if ((bool)AppForm::grdPlugins->Rows[iRow]->Cells[0]->Value != true) 
@@ -99,6 +101,7 @@ void AppForm::mnuShowEnabled_Click ( System::Object^ sender, System::EventArgs^ 
             AppForm::grdPlugins->Rows[iRow]->Visible = false;
         }
     }
+    curMng->ResumeBinding();
 }
 
 void AppForm::cmbUEFolder_SelectedIndexChanged ( System::Object^ sender, System::EventArgs^ e )
