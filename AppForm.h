@@ -728,6 +728,7 @@ void GetJSONValue(String^& str0);
 
 int CountEnabledByDefault();
 bool IsIgnoredFolder(String^ Path);
+void CheckAcess(String^ FileUPlugin);
 
 enum class ControlsState 
 {

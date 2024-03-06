@@ -374,6 +374,7 @@ void AddUPlugin(String^ FileUPlugin)
 
 void ReadUPlugin(String^ FileUPlugin, DataRow^& mDataRow)
 {
+    CheckAcess(FileUPlugin);
     FileStream^ filestream = gcnew FileStream(FileUPlugin, FileMode::Open);
     StreamReader^ reader = gcnew StreamReader(filestream);
 
@@ -547,7 +548,8 @@ void BackupAll()
   }
 }
 
-List<String^>^ FindAllUPlugins(String^ Path) {
+List<String^>^ FindAllUPlugins(String^ Path) 
+{
   Generic::List<String^>^ aPluginsList = gcnew Generic::List<String^>();
   for each (String ^ dirPlugin in Directory::EnumerateDirectories(Path)) {
     if (IsIgnoredFolder(dirPlugin)) {
@@ -567,7 +569,22 @@ List<String^>^ FindAllUPlugins(String^ Path) {
   return aPluginsList;
 }
 
-void AppForm::mnuBackupSave_Click(System::Object^ sender, System::EventArgs^ e)
+void CheckAcess(String^ FileUPlugin)
+{
+  FileAttributes oFileAttrib = File::GetAttributes(FileUPlugin);
+  if ((oFileAttrib & FileAttributes::ReadOnly) == FileAttributes::ReadOnly) {
+    try
+    {
+      File::SetAttributes(FileUPlugin, oFileAttrib ^ FileAttributes::ReadOnly);
+    }
+    catch (const Exception^ err)
+    {
+      throw gcnew AccessViolationException(Append(Append("File Access Error: ", FileUPlugin), " is Read-Only, try to run UEPlugins_DisableDefault as Administrator."));
+    }
+  }
+}
+
+void AppForm::mnuBackupSave_Click(System::Object^ sender, System::EventArgs^ e) 
 {
   bool bIsTemplate = false;
   bIsTemplate = sender->ToString()->Contains("template");
