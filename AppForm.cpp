@@ -381,14 +381,17 @@ void ReadUPlugin(String^ FileUPlugin, DataRow^& mDataRow)
     mDataRow["celName"] = Path::GetFileNameWithoutExtension(FileUPlugin);
     mDataRow["celPath"] = FileUPlugin->Substring(FileUPlugin->IndexOf("plugins", StringComparison::CurrentCultureIgnoreCase) + 8);
 
-    if ( File::Exists(Append(Path::GetDirectoryName(FileUPlugin), "\\Resources\\icon128.png")) ) 
-    {
-        mDataRow["celIcon"] = Drawing::Image::FromFile( Append(Path::GetDirectoryName(FileUPlugin), "\\Resources\\icon128.png") );
+    try {
+      if ( File::Exists(Append(Path::GetDirectoryName(FileUPlugin), "\\Resources\\icon128.png")) ) 
+      {
+          mDataRow["celIcon"] = Drawing::Image::FromFile( Append(Path::GetDirectoryName(FileUPlugin), "\\Resources\\icon128.png") );
+      }
+      else
+      {
+          mDataRow["celIcon"] = Drawing::Image::FromFile( Append(AppForm::cmbUEFolder->SelectedItem->ToString(), "\\Engine\\Plugins\\Editor\\PluginBrowser\\Resources\\DefaultIcon128.png") );
+      }
     }
-    else
-    {
-        mDataRow["celIcon"] = Drawing::Image::FromFile( Append(AppForm::cmbUEFolder->SelectedItem->ToString(), "\\Engine\\Plugins\\Editor\\PluginBrowser\\Resources\\DefaultIcon128.png") );
-    }
+    catch (...) {}
 
     while ( !reader->EndOfStream )
     {
