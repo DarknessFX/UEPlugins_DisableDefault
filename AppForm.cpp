@@ -25,13 +25,17 @@ void AppForm::AppForm_Load ( System::Object^ sender, System::EventArgs^ e )
 
     StatusUpdate("Reading Unreal Engine folder path in Registry \\\\HKEY_LOCAL_MACHINE\\SOFTWARE\\EpicGames\\Unreal Engine");
     RegistryKey^ UEKey = Registry::LocalMachine->OpenSubKey("SOFTWARE\\EpicGames\\Unreal Engine");
-
-    for each (String^ SubKey in UEKey->GetSubKeyNames()) {
-      RegistryKey^ BuildKey = UEKey->OpenSubKey(SubKey);
-      if (BuildKey->GetValue("InstalledDirectory")) {
-        String^ UEPath = BuildKey->GetValue("InstalledDirectory")->ToString();
-        if (Directory::Exists(UEPath)) {
-          cmbUEFolder->Items->Add(UEPath);
+    if (UEKey != nullptr) {
+      for each (String ^ SubKey in UEKey->GetSubKeyNames()) {
+        RegistryKey^ BuildKey = UEKey->OpenSubKey(SubKey);
+        if (BuildKey == nullptr) { continue; }
+        if (BuildKey->GetValue("InstalledDirectory")) {
+          Object^ installed = BuildKey->GetValue("InstalledDirectory");
+          if (installed == nullptr) { continue; }
+          String^ UEPath = installed->ToString();
+          if (Directory::Exists(UEPath)) {
+            cmbUEFolder->Items->Add(UEPath);
+          }
         }
       }
     }
